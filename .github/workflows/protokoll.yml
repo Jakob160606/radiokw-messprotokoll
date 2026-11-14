@@ -1,0 +1,18 @@
+name: Messprotokoll
+on:
+  schedule: [{ cron: '7 * * * *' }]   # stuendlich, 7 Minuten nach der vollen Stunde
+  workflow_dispatch: {}
+permissions: { contents: write }
+concurrency: protokoll
+jobs:
+  protokoll:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node logger.js
+      - run: |
+          git config user.name "messprotokoll"
+          git config user.email "messprotokoll@users.noreply.github.com"
+          git add data/protokoll.jsonl
+          git diff --cached --quiet || git commit -m "Lauf $(date -u +%Y-%m-%dT%H:%M)"
+          git push
